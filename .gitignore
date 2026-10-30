@@ -25,6 +25,7 @@ PLANO-*.md
 # Saídas
 build/
 export.log
+toque.log
 __pycache__/
 *.pyc
 .DS_Store

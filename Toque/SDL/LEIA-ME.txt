@@ -1,0 +1,3 @@
+Cabeçalhos do SDL 3.4.16 (github.com/libsdl-org/SDL, tag release-3.4.16, commit fa2c02bb6e21974a89ea9824bc53c9932abe5f9c),
+a mesma versão que o SpeedBreaker usa no iPhone (scripts/ios/build_deps.sh do projeto). Licença zlib (LICENSE.txt).
+Só os 31 cabeçalhos que a ponte_sdl.c precisa. A camada não linka o SDL: usa as funções que o executável do app exporta.

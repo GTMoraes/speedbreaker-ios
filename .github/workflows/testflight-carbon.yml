@@ -1,10 +1,19 @@
 name: TestFlight NFS Carbon
 
 # Só roda à mão: GitHub › Actions › "TestFlight NFS Carbon" › Run workflow.
-# Pega o IPA oficial do SpeedBreaker: Carbon (versão fixa no config/carbon.conf), confere, ajusta e envia ao
-# TestFlight interno, com a assinatura gerenciada pela Apple. Nada do app fica no repositório, em Releases ou em artefato.
+# Pega o IPA oficial do SpeedBreaker: Carbon (versão fixa no config/carbon.conf), confere, ajusta, põe os controles por
+# toque (pasta Toque/) e envia ao TestFlight interno, com a assinatura gerenciada pela Apple.
+# Nada do app fica no repositório, em Releases ou em artefato.
 on:
   workflow_dispatch:
+    inputs:
+      toque:
+        description: "Controles por toque"
+        type: choice
+        options:
+          - sim
+          - não
+        default: sim
 
 permissions:
   contents: read
@@ -50,12 +59,17 @@ jobs:
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           BUILD: ${{ github.run_number }}
+          TOQUE: ${{ inputs.toque || 'sim' }}
         run: |
           bash scripts/reassinar.sh
 
       - name: Resumo dos erros (se falhar)
         if: failure()
         run: |
+          if [ -f toque.log ] && grep -qiE "error|erro" toque.log; then
+            echo "== controles por toque (compilação):"
+            grep -niE "error|erro" toque.log | head -40 || true
+          fi
           if [ -f export.log ]; then
             grep -niE "error|failed|ITMS-" export.log | head -60 || true
             D=$(grep -oE '/[^"]*\.xcdistributionlogs' export.log | head -1 || true)

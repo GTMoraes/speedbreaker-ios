@@ -31,11 +31,14 @@ import zipfile
 from pathlib import Path
 
 # Frases de permissão. O SDL3, embutido no app, cita câmera, microfone e Bluetooth; o jogo não usa nenhum dos três, mas a
-# Apple costuma cobrar a frase de quem cita a API.
+# Apple costuma cobrar a frase de quem cita a API. O movimento é dos controles por toque (direção por inclinação): ler o
+# acelerômetro não pede permissão, a frase só evita uma cobrança por engano.
 FRASES = {
     "NSCameraUsageDescription": "O NFS Carbon não usa a câmera.",
     "NSMicrophoneUsageDescription": "O NFS Carbon não usa o microfone.",
     "NSBluetoothAlwaysUsageDescription": "O Bluetooth serve só para controles de jogo.",
+    "NSMotionUsageDescription": "O movimento do iPhone serve só para virar o carro, se você escolher a direção por "
+                                "inclinação.",
 }
 
 
