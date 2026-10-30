@@ -1,0 +1,68 @@
+name: TestFlight NFS Carbon
+
+# Só roda à mão: GitHub › Actions › "TestFlight NFS Carbon" › Run workflow.
+# Pega o IPA oficial do SpeedBreaker: Carbon (versão fixa no config/carbon.conf), confere, ajusta e envia ao
+# TestFlight interno, com a assinatura gerenciada pela Apple. Nada do app fica no repositório, em Releases ou em artefato.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testflight-carbon
+  cancel-in-progress: false
+
+jobs:
+  testflight:
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Escolher o Xcode mais novo
+        run: |
+          XC=$(ls -d /Applications/Xcode_*.app | grep -vi beta | sort -V | tail -1)
+          sudo xcode-select -s "$XC"
+          xcodebuild -version
+          python3 --version
+
+      - name: Conferir os secrets
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          faltam=""
+          for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do
+            [ -n "${!v}" ] || faltam="$faltam $v"
+          done
+          if [ -n "$faltam" ]; then
+            echo "::error::Faltam secrets:$faltam (Settings › Secrets and variables › Actions)"
+            exit 1
+          fi
+
+      - name: Montar, assinar e enviar ao TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          BUILD: ${{ github.run_number }}
+        run: |
+          bash scripts/reassinar.sh
+
+      - name: Resumo dos erros (se falhar)
+        if: failure()
+        run: |
+          if [ -f export.log ]; then
+            grep -niE "error|failed|ITMS-" export.log | head -60 || true
+            D=$(grep -oE '/[^"]*\.xcdistributionlogs' export.log | head -1 || true)
+            if [ -n "$D" ] && [ -d "$D" ]; then
+              echo "== logs da exportação: $D"
+              grep -hiE "error|ITMS-|failed|entitlement|profile" "$D"/IDEDistribution*.log | head -80 || true
+            fi
+          else
+            echo "Falhou antes do envio: veja o passo anterior."
+          fi

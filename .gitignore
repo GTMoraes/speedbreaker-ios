@@ -1,0 +1,31 @@
+# Este repositório é público: nada do jogo nem da EA aqui dentro.
+*.ipa
+*.ipa.sha256
+*.iso
+*.xiso
+*.xex
+*.xcarchive/
+Payload/
+game/
+game-carbon/
+ppc/
+ppc-carbon/
+
+# Segredos (ficam só nos Secrets do GitHub)
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+*.key
+assinatura/
+
+# Plano pessoal: fica só na sua pasta
+PLANO-*.md
+
+# Saídas
+build/
+export.log
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
