@@ -7,71 +7,52 @@ Este repositório não tem nada do jogo nem da EA. O workflow baixa o IPA públi
 de toque, assina com a assinatura gerenciada pela Apple e envia ao TestFlight interno. O jogo se instala dentro do app, a
 partir da imagem do disco (Xbox 360, *Collector's Edition* americana).
 
-**Estado:** Entrega 2, os controles por toque. A Entrega 1 (o caminho até o iPhone) já funcionou.
+**Estado:** Entrega 2, os controles por toque, agora no desenho do NFSU2 e com os botões móveis. A Entrega 1 (o caminho
+até o iPhone) já funcionou.
 
 ---
 
-## Entrega 2: subir e testar
+## Entrega 2, controles no desenho do NFSU2: subir e testar
 
 ### 1. Subir (PowerShell)
 
 ```powershell
 cd C:\claudin\gtm\2026\random\speedbreaker-ios
-Move-Item -Force PARA-A-PASTA-.github-workflows\testflight-carbon.yml .github\workflows\testflight-carbon.yml
-Remove-Item PARA-A-PASTA-.github-workflows
 git add -A
 git status
 ```
 
-No `git status`, o esperado:
-- modificados: `.gitattributes`, `.gitignore`, `.github/workflows/testflight-carbon.yml`, `LEIA-ME.md`,
-  `scripts/montar.py` e `scripts/reassinar.sh`;
-- novos: a pasta `Toque/`, `scripts/injetar.py`, `testes/testar_injetar.py`, `testes/testar_nucleo.c` e
-  `testes/testar_ponte.c`.
-
+No `git status`, o esperado: modificados `LEIA-ME.md`, `Toque/Toque.m`, `Toque/nucleo.c`, `Toque/nucleo.h` e
+`testes/testar_nucleo.c` (a correção dos rótulos e o EQUIPE, que estavam na pasta sem subir, vão juntos, já refeitos).
 O `PLANO-speedbreaker-ios.md` continua de fora. Se estiver certo:
 
 ```powershell
-git commit -m "Entrega 2: controles por toque"
+git commit -m "Controles no desenho do NFSU2 e botoes moveis"
 git push
 ```
 
 ### 2. Rodar
 
 1. **Actions** › **TestFlight NFS Carbon** › **Run workflow**. Em "Controles por toque", deixe **sim** › **Run workflow**.
-2. Leva uns 6 minutos (agora compila a camada antes de enviar). O resumo diz "build N enviada, com os controles por
-   toque".
+2. Uns 6 minutos. O resumo diz "build N enviada, com os controles por toque".
 3. Mais 10 a 20 minutos de processamento na Apple, e a build aparece no TestFlight.
 
-**Se falhar:** o passo **Resumo dos erros** mostra os erros de compilação da camada (em "controles por toque") e os do
-envio. Me mande o texto, e o e-mail do App Store Connect se chegar algum (códigos `ITMS-`).
+**Se falhar:** o passo **Resumo dos erros** mostra os erros de compilação da camada. Me mande o texto.
 
-### 3. Testar sem o disco
+### 3. Testar
 
-1. TestFlight › NFS Carbon › **Atualizar**. O jogo instalado e os saves ficam (por enquanto não tem nenhum).
-2. Abra. O instalador aparece como antes, agora com uma **engrenagem** pequena no canto de cima, à direita. Nas telas
-   cheias do SpeedBreaker (instalador, avisos) fica só ela: ali o SpeedBreaker usa o toque direto.
-3. Engrenagem › **Diagnóstico**. O esperado:
-   - Funções do app: 13 de 13
-   - SDL dos controles: ligado
-   - Controle virtual: conectado
-   - Aberto pelo jogo: sim
-   - Outros controles: 0 (se houver um controle Bluetooth ligado, desligue para este teste)
-   - Memória que o app ainda pode usar: alguns GB (mostra se a permissão de memória a mais veio)
+1. TestFlight › NFS Carbon › **Atualizar**. O jogo instalado, os saves e os ajustes ficam. A antiga "Transparência"
+   não vem junto: a nova **Opacidade** começa em 100%, porque o desenho do NFSU2 já é meio transparente.
+2. Abra o jogo. Os controles agora são os do NFSU2: retângulos e redondos pretos a 40%, texto branco em itálico
+   negrito, verde-limão enquanto apertado. O **≡** (os ajustes da camada) fica no canto de cima, à esquerda, no lugar da
+   engrenagem; nas telas cheias do SpeedBreaker fica só ele.
+3. **Botão de direção** (canto de cima, à direita): cada toque passa para o próximo jeito de dirigir, botões ◀ ▶,
+   analógico e inclinação. Um aviso no alto diz qual ficou, e já fica salvo.
+4. **Mover os botões:** ≡ › **Mover os botões** (veja abaixo). Mude um botão de lugar e de tamanho, toque em **Pronto**,
+   feche e abra o app: ele continua onde você deixou.
+5. Jogue uma corrida.
 
-   Toque em **Copiar** e me mande o texto.
-4. **Testar a vibração (1 s):** o iPhone vibra por um segundo.
-5. **Controles sempre à mostra:** toque até ficar "sim" e volte. Os controles do modo Menu aparecem por cima do instalador.
-   - No direcional, aperte para baixo e para cima: o destaque anda entre os botões do instalador (*Browse for image...*,
-     *Browse for folder...*, *Rescan*). Com o destaque no *Rescan*, aperte **OK**: ele procura de novo. Isso mostra o
-     caminho inteiro funcionando: toque › controle virtual › jogo.
-   - Toque em **PILOTAR**: aparecem os controles de pilotagem. Sem o jogo não dá para dirigir; é para ver tamanho e
-     posição. Tire um print de cada modo.
-   - Na engrenagem, experimente **Direção** (Analógico, Inclinar o iPhone), **Tamanho** e **Transparência**.
-   - O "sempre à mostra" não fica salvo: fechou o app, volta ao normal.
-6. O toque com **3 dedos** (fora dos botões da camada) continua abrindo os ajustes do SpeedBreaker.
-
-**Me mande:** o texto do Diagnóstico, os prints dos dois modos e se o direcional e o OK mexeram no instalador.
+**Me mande:** um print do Menu, um da pilotagem e um do Mover os botões, e se o toque ficou mais fácil de acertar.
 
 **Se o app fechar sozinho ao abrir:** rode o workflow de novo com "Controles por toque: **não**" (volta a ser o app da
 Entrega 1) e me mande o relatório do travamento: em Ajustes › Privacidade e Segurança › Análise e Melhorias › **Dados de
@@ -80,24 +61,37 @@ perguntar se quer enviar o travamento, aceite também.
 
 ### Como usar os controles
 
-- **PILOTAR / MENU**, no alto, no meio: troca o modo. A Pausa (❚❚) pilotando já muda para Menu.
-- **Menu:** direcional, OK (A), VOLTAR (B), X, Y, LB e RB, BACK e START.
+As medidas, as cores e os ícones são os do port do NFSU2. O que o Carbon tem a mais entra no mesmo desenho.
+
+- **Menu:** direcional em cruz embaixo à esquerda; Voltar (B) sobre OK (A) embaixo à direita, com X e Y em cima deles;
+  no alto, LB e RB nos cantos, e Back, **Pilotar** e Start no meio. **Pilotar** troca para a pilotagem.
 - **Pilotar:**
-  - direção: ◀ ▶, ou analógico (onde o polegar pousar, na metade esquerda), ou inclinar o iPhone como um volante (o
-    jeito que ele estiver quando você começa a pilotar conta como reto; o botão **RETO** acerta de novo);
-  - GÁS, FREIO (também é a ré) e NITRO (já acelera junto): o dedo desliza entre os três sem levantar; o mesmo entre ◀ e ▶;
-  - FREIO DE MÃO, SPEEDBREAKER e PARCEIRO;
-  - CÂM: um toque troca a câmera; segurado, olha para trás;
-  - ENTRAR: entra na corrida ou na loja;
-  - **+**: abre RESET, MAPA e SMS;
-  - com o câmbio manual ligado nos ajustes: M+ e M−.
-- **Controle de verdade** (Bluetooth): os toques somem e fica só a engrenagem; o jogo passa a usar o controle.
-  Desconectou, os toques voltam.
-- **Engrenagem:** direção, tamanho (80 a 150%), transparência, vibração (toques e jogo, só toques, desligada), câmbio
-  manual, "Pausa muda para o modo Menu", reatribuir botões, abrir os ajustes do SpeedBreaker, Diagnóstico e restaurar o
-  padrão (pergunta "Tem certeza?").
-- Mapa, SMS e as marchas ainda vão ser conferidos no jogo, na Entrega 3. Se algum não funcionar: engrenagem › Reatribuir
-  botões.
+  - fileira de cima: ≡, Pausa, Câmera, Reset, Mapa, SMS e **Equipe** (ativa o parceiro); à direita, **Menu** (volta
+    para o modo Menu) e o botão de direção. A Pausa já muda para Menu;
+  - direção: ◀ ▶ embaixo à esquerda (o dedo desliza entre as duas), ou o analógico (o polegar pousa em qualquer lugar do
+    canto de baixo, à esquerda, e a base vem para debaixo dele), ou inclinar o iPhone como um volante (o jeito que ele
+    estiver quando você começa a pilotar conta como reto; o botão com o alvo, ao lado, acerta de novo);
+  - **Gás** (o alto) e **Freio** (também é a ré) embaixo à direita, **N₂O** em cima do Gás (já acelera junto),
+    **Freio de mão** em cima do Freio e **Speedbreaker** à esquerda dele. O dedo desliza entre Gás, Freio e N₂O sem
+    levantar; fora deles, fica no último;
+  - na inclinação, o Freio e o Freio de mão vão para baixo do polegar esquerdo, e o N₂O para o lado do Gás;
+  - Câmera: um toque troca a câmera; segurada, olha para trás;
+  - **Entrar**, em cima das setas: entra na corrida ou na loja;
+  - com o câmbio manual ligado nos ajustes: as marchas, em cima das setas.
+- **Mover os botões** (≡ › Mover os botões):
+  - todos os botões ganham um contorno tracejado, e o painel do meio mostra o escolhido (contorno verde) e o tamanho;
+  - um dedo arrasta; para mudar o tamanho, com um dedo no botão, ponha o segundo em qualquer lugar da tela e abra ou
+    feche (de 50 a 250%);
+  - Menu, Botões, Analógico e Inclinação, no painel: qual tela arrumar. Cada uma guarda as suas posições;
+  - **Padrão** volta a tela à mostra ao lugar e ao tamanho padrão (pergunta "Tem certeza?"); **Cancelar** desfaz o que
+    mudou desde que entrou (pergunta se mudou algo); **Pronto** salva;
+  - enquanto você move, nada vai para o jogo, e o painel some enquanto um dedo está num botão.
+- **Controle de verdade** (Bluetooth): os toques somem e fica só o ≡; o jogo passa a usar o controle. Desconectou, os
+  toques voltam.
+- **≡:** Mover os botões, direção, tamanho (80 a 150%, até o que cabe na tela: no iPhone 17, 114%), opacidade,
+  vibração (toques e jogo, só toques, desligada), câmbio manual, "Pausa muda para o modo Menu", reatribuir botões, abrir
+  os ajustes do SpeedBreaker, Diagnóstico e restaurar o padrão (tudo, inclusive as posições; pergunta "Tem certeza?").
+- Mapa, SMS e as marchas ainda vão ser conferidos no jogo. Se algum não funcionar: ≡ › Reatribuir botões.
 
 ---
 
@@ -165,7 +159,7 @@ Actions › TestFlight NFS Carbon › Run workflow. Depois, no iPhone: TestFligh
 ## Dia a dia
 
 - **A build vence em 90 dias** no TestFlight: Actions › Run workflow de novo. Instala por cima; o jogo instalado, os saves
-  e os ajustes dos controles ficam.
+  e os ajustes e as posições dos controles ficam.
 - **Versão nova do SpeedBreaker:** não troque o `config/carbon.conf` sozinho. Me avise; eu confiro a versão nova (hash,
   permissões de memória e as funções que os controles por toque usam) e atualizo. O próprio workflow também confere as
   funções e para se faltar alguma.
@@ -221,9 +215,9 @@ o jogo. A vibração que o jogo manda para o controle vira vibração do iPhone.
 | `scripts/reassinar.sh` | os passos no runner macOS |
 | `scripts/montar.py` | a parte de arquivos do app (Python, sem pacotes extras) |
 | `scripts/injetar.py` | o comando de carga da camada no executável (Python, sem pacotes extras) |
-| `Toque/nucleo.c`, `nucleo.h` | o miolo dos controles em C: posições, toques, modos, o que cada toque aperta |
+| `Toque/nucleo.c`, `nucleo.h` | o miolo dos controles em C: as medidas do NFSU2, toques, modos, mover os botões, o que cada toque aperta |
 | `Toque/ponte_sdl.c`, `ponte_sdl.h` | a ligação com o SDL e com o SpeedBreaker que estão dentro do app |
-| `Toque/Toque.m` | a parte de iOS: janela, desenho, toques, vibração, inclinação, ajustes e diagnóstico |
+| `Toque/Toque.m` | a parte de iOS: janela, o desenho e os ícones do NFSU2, toques, vibração, inclinação, ajustes, posições salvas e diagnóstico |
 | `Toque/Info.plist`, `PrivacyInfo.xcprivacy` | do framework (o workflow completa as versões do Xcode) |
 | `Toque/SDL/` | 31 cabeçalhos do SDL 3.4.16, a mesma versão do app (licença zlib) |
 | `testes/testar_montar.py` | `python3 testes/testar_montar.py <ipa>` |
@@ -232,8 +226,14 @@ o jogo. A vibração que o jogo manda para o controle vira vibração do iPhone.
 
 ## O que foi conferido antes de subir
 
-- Núcleo dos controles: 3.268 checagens (posições sem sobrepor nem sair da tela em todos os tamanhos, toques, pedais
-  deslizando, direção com rampa, analógico, inclinação, câmera, pausa, modos, reatribuição, ajustes estragados).
+- Núcleo dos controles: 22.475 checagens. As medidas do NFSU2 no iPhone 17, uma a uma. Em 6 telas (do iPhone SE ao
+  iPad), 11 combinações de ajustes e os dois modos: nada sai das margens, nenhum controle fica a menos de 4 pontos de
+  outro (no tamanho 100%), e cada um é acertado no próprio centro. E os toques: aperto mínimo de 150 ms, pedais e setas deslizando como no
+  NFSU2, rampa da direção, analógico, inclinação, câmera, pausa, modos, botão de direção, mover, pinça, limites da tela,
+  posições por tela, nomes guardados e ajustes estragados. 35 erros plantados de propósito: os 35 pegos.
+- Ícones: os 16 redesenhados para o iOS, comparados pixel a pixel com os do NFSU2 (diferença abaixo de 0,1%, só o
+  serrilhado).
+- Uma prévia de cada tela desenhada a partir das posições reais do núcleo.
 - Ponte com o SDL: 97 checagens com um SDL de mentira (o controle criado como o do runtime, gatilhos soltos ao conectar,
   só o que mudou é enviado, cada botão no botão certo, rumble, falhas), mais 11 com duas funções faltando (a camada fica
   desligada sem quebrar nada). Os dois testes rodaram também com os detectores de erro de memória do compilador.
