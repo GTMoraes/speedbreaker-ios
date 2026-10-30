@@ -54,7 +54,8 @@ static NSString *const K_TRANSPARENCIA_ANTIGA = @"toque.transparencia"; /* a da 
 static NSString *const K_VIBRACAO = @"toque.vibracao";
 static NSString *const K_CAMBIO = @"toque.cambio_manual";
 static NSString *const K_PAUSA = @"toque.pausa_vai_para_menu";
-static NSString *const K_MAPA = @"toque.mapa";
+static NSString *const K_MAPA_ANTIGO = @"toque.mapa"; /* até a entrega 2: o mapa inteiro, padrões incluídos */
+static NSString *const K_TROCAS = @"toque.trocas";    /* só o que você reatribuiu: 0xFF = o padrão daquela ação */
 static NSString *const K_POSICOES = @"toque.posicoes"; /* "tela.controle" -> [dx, dy, tamanho] */
 
 static NSString *texto(const char *s) { return s ? ([NSString stringWithUTF8String:s] ?: @"") : @""; }
@@ -78,6 +79,16 @@ static NSString *nomeVibracao(NSInteger v)
 }
 
 static NSString *porcento(float f) { return [NSString stringWithFormat:@"%d%%", (int)lroundf(f * 100)]; }
+
+/* O mapa padrão da entrega 2 (antes de o Mapa e o SMS irem para o direcional ← e →). Para migrar o "toque.mapa"
+ * antigo, que guardava tudo: o que estiver igual a ele não foi escolha sua, e passa a seguir o padrão novo. */
+static const uint8_t MAPA_PADRAO_ENTREGA2[TQ_ACAO_COUNT] = {
+    [TQ_ACAO_FREIO_MAO] = TQ_O_A, [TQ_ACAO_NITRO] = TQ_O_B, [TQ_ACAO_SPEEDBREAKER] = TQ_O_X, [TQ_ACAO_PARCEIRO] = TQ_O_Y,
+    [TQ_ACAO_RESET] = TQ_O_LB, [TQ_ACAO_CAMERA] = TQ_O_RB, [TQ_ACAO_OLHAR_TRAS] = TQ_O_RS, [TQ_ACAO_PAUSA] = TQ_O_START,
+    [TQ_ACAO_ENTRAR] = TQ_O_BACK, [TQ_ACAO_MAPA] = TQ_O_DUP, [TQ_ACAO_SMS] = TQ_O_DDOWN, [TQ_ACAO_SOBE] = TQ_O_RUP,
+    [TQ_ACAO_DESCE] = TQ_O_RDOWN,
+};
+#define TQ_PADRAO 0xFF
 
 /* ---------- as cores e as letras do NFSU2 (web/src/app/style.css) ---------- */
 
@@ -893,6 +904,7 @@ static int dedosNosControles(const tq_nucleo *n)
     /* ajustes só da parte de iOS */
     float _opacidade;
     NSInteger _vibracao;
+    uint8_t _trocas[TQ_ACAO_COUNT]; /* as reatribuições que você fez; TQ_PADRAO = segue o padrão */
     /* mover os botões: como estava antes, para Cancelar e para voltar à tela de antes */
     BOOL _editando;
     tq_posicao _posAntes[TQ_TELAS][TQ_C_COUNT];
@@ -931,6 +943,7 @@ static int dedosNosControles(const tq_nucleo *n)
         tq_iniciar(&_n, &aj);
         _opacidade = 1;
         _forcaEnviada = -1;
+        memset(_trocas, TQ_PADRAO, sizeof _trocas);
     }
     return self;
 }
@@ -1547,9 +1560,24 @@ static int dedosNosControles(const tq_nucleo *n)
         aj.cambio_manual = [d boolForKey:K_CAMBIO];
     if ([d objectForKey:K_PAUSA])
         aj.pausa_vai_para_menu = [d boolForKey:K_PAUSA];
-    NSData *mapa = [d dataForKey:K_MAPA];
-    if (mapa.length == TQ_ACAO_COUNT)
-        memcpy(aj.mapa, mapa.bytes, TQ_ACAO_COUNT);
+    /* Os botões: o padrão desta build, mais o que você reatribuiu. Assim, um padrão corrigido numa build nova (como o
+     * Mapa e o SMS) chega sozinho, e o que você trocou fica. */
+    memset(_trocas, TQ_PADRAO, sizeof _trocas);
+    NSData *trocas = [d dataForKey:K_TROCAS];
+    NSData *antigo = [d dataForKey:K_MAPA_ANTIGO];
+    if (trocas.length == TQ_ACAO_COUNT) {
+        memcpy(_trocas, trocas.bytes, TQ_ACAO_COUNT);
+    } else if (antigo.length == TQ_ACAO_COUNT) {
+        const uint8_t *v = antigo.bytes;
+        for (int i = 0; i < TQ_ACAO_COUNT; i++)
+            if (v[i] != MAPA_PADRAO_ENTREGA2[i])
+                _trocas[i] = v[i];
+    }
+    for (int i = 0; i < TQ_ACAO_COUNT; i++)
+        if (_trocas[i] != TQ_PADRAO && _trocas[i] < TQ_O_COUNT)
+            aj.mapa[i] = _trocas[i];
+        else
+            _trocas[i] = TQ_PADRAO;
     tq_definir_ajustes(&_n, &aj); /* corrige o que vier estragado */
     _opacidade = [d objectForKey:K_OPACIDADE] ? [d floatForKey:K_OPACIDADE] : 1.0f;
     if (!(_opacidade >= 0.3f && _opacidade <= 1.0f))
@@ -1566,7 +1594,8 @@ static int dedosNosControles(const tq_nucleo *n)
     [d setFloat:_n.aj.escala forKey:K_ESCALA];
     [d setBool:_n.aj.cambio_manual != 0 forKey:K_CAMBIO];
     [d setBool:_n.aj.pausa_vai_para_menu != 0 forKey:K_PAUSA];
-    [d setObject:[NSData dataWithBytes:_n.aj.mapa length:TQ_ACAO_COUNT] forKey:K_MAPA];
+    [d setObject:[NSData dataWithBytes:_trocas length:TQ_ACAO_COUNT] forKey:K_TROCAS];
+    [d removeObjectForKey:K_MAPA_ANTIGO]; /* já migrado */
     [d setFloat:_opacidade forKey:K_OPACIDADE];
     [d setInteger:_vibracao forKey:K_VIBRACAO];
 }
@@ -1817,17 +1846,20 @@ static int dedosNosControles(const tq_nucleo *n)
 - (void)escolherSaidaPara:(int)acao
 {
     __weak TQCamada *fraca = self;
+    tq_ajustes padrao;
+    tq_ajustes_padrao(&padrao);
     UIAlertController *a = [UIAlertController alertControllerWithTitle:texto(tq_nome_acao(acao))
                                                                message:@"Qual botão do controle essa ação aperta?"
                                                         preferredStyle:UIAlertControllerStyleActionSheet];
     for (int saida = 0; saida < TQ_O_COUNT; saida++) {
         NSString *nome = texto(tq_nome_saida(saida));
+        if (saida == padrao.mapa[acao])
+            nome = [nome stringByAppendingString:@" (padrão)"];
         NSString *t = saida == _n.aj.mapa[acao] ? [@"✓ " stringByAppendingString:nome] : nome;
+        const BOOL ehPadrao = saida == padrao.mapa[acao];
         [a addAction:[self acao:t
                             faz:^{
-                                [fraca mudar:^(tq_ajustes *aj) {
-                                    aj->mapa[acao] = (uint8_t)saida;
-                                }];
+                                [fraca reatribuir:acao para:saida padrao:ehPadrao];
                             }]];
     }
     [a addAction:[UIAlertAction actionWithTitle:@"Voltar"
@@ -1837,6 +1869,16 @@ static int dedosNosControles(const tq_nucleo *n)
                                             [fraca escolherAcaoParaReatribuir];
                                         }]];
     [self mostrar:a];
+}
+
+- (void)reatribuir:(int)acao para:(int)saida padrao:(BOOL)ehPadrao
+{
+    if (acao < 0 || acao >= TQ_ACAO_COUNT)
+        return;
+    _trocas[acao] = ehPadrao ? TQ_PADRAO : (uint8_t)saida; /* escolheu o padrão: volta a seguir o padrão */
+    [self mudar:^(tq_ajustes *aj) {
+        aj->mapa[acao] = (uint8_t)saida;
+    }];
 }
 
 - (void)abrirAjustesDoSpeedBreaker
@@ -1867,7 +1909,7 @@ static int dedosNosControles(const tq_nucleo *n)
 {
     NSUserDefaults *d = NSUserDefaults.standardUserDefaults;
     for (NSString *k in @[ K_DIRECAO, K_ESCALA, K_OPACIDADE, K_TRANSPARENCIA_ANTIGA, K_VIBRACAO, K_CAMBIO, K_PAUSA,
-                           K_MAPA, K_POSICOES ])
+                           K_MAPA_ANTIGO, K_TROCAS, K_POSICOES ])
         [d removeObjectForKey:k];
     tq_soltar_tudo(&_n);
     [self lerAjustes];
@@ -1897,6 +1939,12 @@ static int dedosNosControles(const tq_nucleo *n)
     [t appendFormat:@"Botões mudados de lugar: Menu %d, Botões %d, Analógico %d, Inclinação %d\n",
                     [self posicoesMudadasNaTela:TQ_TELA_MENU], [self posicoesMudadasNaTela:TQ_TELA_BOTOES],
                     [self posicoesMudadasNaTela:TQ_TELA_ANALOGICO], [self posicoesMudadasNaTela:TQ_TELA_INCLINACAO]];
+    NSMutableString *trocas = [NSMutableString string];
+    for (int i = 0; i < TQ_ACAO_COUNT; i++)
+        if (_trocas[i] != TQ_PADRAO)
+            [trocas appendFormat:@"%@%@ = %@", trocas.length ? @"; " : @"", texto(tq_nome_acao(i)),
+                                 texto(tq_nome_saida(_n.aj.mapa[i]))];
+    [t appendFormat:@"Botões reatribuídos: %@\n", trocas.length ? trocas : @"nenhum"];
     [t appendFormat:@"Tela: %.0f x %.0f pontos, margens %.0f / %.0f / %.0f / %.0f\n", _n.w, _n.h, _n.se, _n.st, _n.sd,
                     _n.sb];
     [t appendFormat:@"Enviado agora: botões 0x%04x, volante %.2f, freio %.0f, acelerador %.0f\n", (unsigned)_s.botoes,

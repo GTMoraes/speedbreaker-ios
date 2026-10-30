@@ -283,7 +283,7 @@ int main(void)
         CHECK(s.botoes == 0, "soltou: nada");
     }
 
-    printf("5. pilotagem: os pedais deslizam (Gás, Nitro, Freio); fora deles, fica no último\n");
+    printf("5. pilotagem: os pedais deslizam (Gás, Nitro, Freio e Freio de mão); fora deles, fica no último\n");
     novo(NULL);
     tq_definir_modo(&n, TQ_MODO_PILOTAGEM);
     CHECK(tq_eventos(&n) & TQ_EV_MODO, "evento de modo");
@@ -308,22 +308,39 @@ int main(void)
     CHECK(s.lt == 1, "fora dos pedais, fica no último");
     mover_para(3, TQ_C_FREIO_MAO, 4.05);
     tick(4.06);
-    CHECK(s.lt == 1 && !botao(TQ_O_A), "o Freio de mão não é do grupo dos pedais");
-    soltar(3, 4.1);
-    tick(4.3);
-    CHECK(s.lt == 0 && s.rt == 0, "soltou: nada");
-    tocar(3, TQ_C_FREIO, 4.4);
-    mover_para(3, TQ_C_GAS, 4.42);
+    CHECK(botao(TQ_O_A) && n.c[TQ_C_FREIO_MAO].apertado && !n.c[TQ_C_FREIO].apertado,
+          "do Freio para o Freio de mão: A");
+    tick(4.25);
+    CHECK(botao(TQ_O_A) && s.lt == 0, "e o Freio soltou");
+    soltar(3, 4.26);
     tick(4.45);
+    CHECK(s.lt == 0 && s.rt == 0 && !botao(TQ_O_A), "soltou: nada");
+    /* a pedido: do Gás para o Freio de mão e de volta, sem levantar o dedo */
+    tocar(3, TQ_C_GAS, 4.5);
+    tick(4.7);
+    mover_para(3, TQ_C_FREIO_MAO, 4.7);
+    tick(4.72);
+    CHECK(botao(TQ_O_A) && s.rt == 0, "Gás (segurado mais que 150 ms) para Freio de mão: A, e o gás solta já");
+    tick(4.86);
+    CHECK(botao(TQ_O_A) && s.rt == 0, "segurando o Freio de mão: só ele");
+    mover_para(3, TQ_C_GAS, 4.9);
+    tick(5.1);
+    CHECK(s.rt == 1 && !botao(TQ_O_A), "de volta ao Gás");
+    soltar(3, 5.1);
+    tick(5.3);
+    CHECK(s.lt == 0 && s.rt == 0 && !botao(TQ_O_A), "soltou: nada");
+    tocar(3, TQ_C_FREIO, 5.4);
+    mover_para(3, TQ_C_GAS, 5.42);
+    tick(5.45);
     CHECK(s.rt == 1 && s.lt == 1, "Freio para Gás: o Freio segura o aperto mínimo");
-    tick(4.56);
+    tick(5.56);
     CHECK(s.rt == 1 && s.lt == 0, "e depois só o Gás");
-    soltar(3, 4.6);
+    soltar(3, 5.6);
 
     printf("6. direção por botões, com rampa\n");
-    tick(4.99);
-    tocar(4, TQ_C_DIREITA, 5.0);
-    double t = 4.99;
+    tick(5.99);
+    tocar(4, TQ_C_DIREITA, 6.0);
+    double t = 5.99;
     for (int i = 0; i < 5; i++)
         tick(t += 1.0 / 60);
     CHECK(s.lx > 0.35f && s.lx < 0.6f, "metade do caminho em ~0,08 s (lx=%.2f)", s.lx);
@@ -445,7 +462,7 @@ int main(void)
     printf("10. os outros da pilotagem, com o mapa padrão\n");
     {
         const int c[] = { TQ_C_FREIO_MAO, TQ_C_SPEEDBREAKER, TQ_C_PARCEIRO, TQ_C_RESET, TQ_C_ENTRAR, TQ_C_MAPA, TQ_C_SMS };
-        const int o[] = { TQ_O_A, TQ_O_X, TQ_O_Y, TQ_O_LB, TQ_O_BACK, TQ_O_DUP, TQ_O_DDOWN };
+        const int o[] = { TQ_O_A, TQ_O_X, TQ_O_Y, TQ_O_LB, TQ_O_BACK, TQ_O_DLEFT, TQ_O_DRIGHT };
         t = 30;
         for (int i = 0; i < 7; i++, t += 1) {
             toque_rapido(2, c[i], t);

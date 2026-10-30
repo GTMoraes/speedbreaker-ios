@@ -7,12 +7,12 @@ Este repositório não tem nada do jogo nem da EA. O workflow baixa o IPA públi
 de toque, assina com a assinatura gerenciada pela Apple e envia ao TestFlight interno. O jogo se instala dentro do app, a
 partir da imagem do disco (Xbox 360, *Collector's Edition* americana).
 
-**Estado:** Entrega 2, os controles por toque, agora no desenho do NFSU2 e com os botões móveis. A Entrega 1 (o caminho
-até o iPhone) já funcionou.
+**Estado:** Entrega 2, os controles por toque no desenho do NFSU2, com os botões móveis, funcionando no jogo. A Entrega
+1 (o caminho até o iPhone) já funcionou.
 
 ---
 
-## Entrega 2, controles no desenho do NFSU2: subir e testar
+## Atualização: Mapa e SMS no direcional, Freio de mão no deslize do Gás
 
 ### 1. Subir (PowerShell)
 
@@ -22,42 +22,28 @@ git add -A
 git status
 ```
 
-No `git status`, o esperado: modificados `LEIA-ME.md`, `Toque/Toque.m`, `Toque/nucleo.c`, `Toque/nucleo.h` e
-`testes/testar_nucleo.c` (a correção dos rótulos e o EQUIPE, que estavam na pasta sem subir, vão juntos, já refeitos).
+No `git status`, o esperado: modificados `LEIA-ME.md`, `Toque/Toque.m`, `Toque/nucleo.c` e `testes/testar_nucleo.c`.
 O `PLANO-speedbreaker-ios.md` continua de fora. Se estiver certo:
 
 ```powershell
-git commit -m "Controles no desenho do NFSU2 e botoes moveis"
+git commit -m "Mapa e SMS no direcional, Freio de mao deslizando do Gas"
 git push
 ```
 
 ### 2. Rodar
 
-1. **Actions** › **TestFlight NFS Carbon** › **Run workflow**. Em "Controles por toque", deixe **sim** › **Run workflow**.
-2. Uns 6 minutos. O resumo diz "build N enviada, com os controles por toque".
-3. Mais 10 a 20 minutos de processamento na Apple, e a build aparece no TestFlight.
-
-**Se falhar:** o passo **Resumo dos erros** mostra os erros de compilação da camada. Me mande o texto.
+**Actions** › **TestFlight NFS Carbon** › **Run workflow**, com "Controles por toque" em **sim**. Uns 6 minutos, mais 10 a
+20 de processamento na Apple. **Se falhar:** me mande o texto do passo **Resumo dos erros**.
 
 ### 3. Testar
 
-1. TestFlight › NFS Carbon › **Atualizar**. O jogo instalado, os saves e os ajustes ficam. A antiga "Transparência"
-   não vem junto: a nova **Opacidade** começa em 100%, porque o desenho do NFSU2 já é meio transparente.
-2. Abra o jogo. Os controles agora são os do NFSU2: retângulos e redondos pretos a 40%, texto branco em itálico
-   negrito, verde-limão enquanto apertado. O **≡** (os ajustes da camada) fica no canto de cima, à esquerda, no lugar da
-   engrenagem; nas telas cheias do SpeedBreaker fica só ele.
-3. **Botão de direção** (canto de cima, à direita): cada toque passa para o próximo jeito de dirigir, botões ◀ ▶,
-   analógico e inclinação. Um aviso no alto diz qual ficou, e já fica salvo.
-4. **Mover os botões:** ≡ › **Mover os botões** (veja abaixo). Mude um botão de lugar e de tamanho, toque em **Pronto**,
-   feche e abra o app: ele continua onde você deixou.
-5. Jogue uma corrida.
+1. TestFlight › NFS Carbon › **Atualizar**. Não precisa reatribuir nada: o Mapa vai para o direcional ← e o SMS para o
+   →, sozinhos. O que você mesmo tiver reatribuído continua como está.
+2. Andando pela cidade: o botão do **Mapa** abre o mapa da cidade, e o do **SMS**, as mensagens.
+3. Com o dedo no **Gás**, deslize até o **Freio de mão** e volte, sem levantar.
 
-**Me mande:** um print do Menu, um da pilotagem e um do Mover os botões, e se o toque ficou mais fácil de acertar.
-
-**Se o app fechar sozinho ao abrir:** rode o workflow de novo com "Controles por toque: **não**" (volta a ser o app da
-Entrega 1) e me mande o relatório do travamento: em Ajustes › Privacidade e Segurança › Análise e Melhorias › **Dados de
-Análise**, o arquivo mais novo que começa com "SpeedBreaker" (abra e use o botão de compartilhar). Se o TestFlight
-perguntar se quer enviar o travamento, aceite também.
+**Se o Mapa ou o SMS ainda não funcionarem:** abra a tela de controles do próprio jogo (Pausa › Opções › Controles) e me
+mande um print. Ela mostra o botão de cada ação.
 
 ### Como usar os controles
 
@@ -72,10 +58,11 @@ As medidas, as cores e os ícones são os do port do NFSU2. O que o Carbon tem a
     canto de baixo, à esquerda, e a base vem para debaixo dele), ou inclinar o iPhone como um volante (o jeito que ele
     estiver quando você começa a pilotar conta como reto; o botão com o alvo, ao lado, acerta de novo);
   - **Gás** (o alto) e **Freio** (também é a ré) embaixo à direita, **N₂O** em cima do Gás (já acelera junto),
-    **Freio de mão** em cima do Freio e **Speedbreaker** à esquerda dele. O dedo desliza entre Gás, Freio e N₂O sem
-    levantar; fora deles, fica no último;
+    **Freio de mão** em cima do Freio e **Speedbreaker** à esquerda dele. O dedo desliza entre Gás, Freio, N₂O e Freio
+    de mão sem levantar; fora deles, fica no último. No Freio de mão, o gás solta;
   - na inclinação, o Freio e o Freio de mão vão para baixo do polegar esquerdo, e o N₂O para o lado do Gás;
   - Câmera: um toque troca a câmera; segurada, olha para trás;
+  - Mapa e SMS: o direcional ← e → do controle (só no modo carreira);
   - **Entrar**, em cima das setas: entra na corrida ou na loja;
   - com o câmbio manual ligado nos ajustes: as marchas, em cima das setas.
 - **Mover os botões** (≡ › Mover os botões):
@@ -89,9 +76,16 @@ As medidas, as cores e os ícones são os do port do NFSU2. O que o Carbon tem a
 - **Controle de verdade** (Bluetooth): os toques somem e fica só o ≡; o jogo passa a usar o controle. Desconectou, os
   toques voltam.
 - **≡:** Mover os botões, direção, tamanho (80 a 150%, até o que cabe na tela: no iPhone 17, 114%), opacidade,
-  vibração (toques e jogo, só toques, desligada), câmbio manual, "Pausa muda para o modo Menu", reatribuir botões, abrir
-  os ajustes do SpeedBreaker, Diagnóstico e restaurar o padrão (tudo, inclusive as posições; pergunta "Tem certeza?").
-- Mapa, SMS e as marchas ainda vão ser conferidos no jogo. Se algum não funcionar: ≡ › Reatribuir botões.
+  vibração (toques e jogo, só toques, desligada), câmbio manual, "Pausa muda para o modo Menu", reatribuir botões (o
+  padrão de cada ação aparece marcado; só o que você troca fica salvo, então um padrão corrigido numa build nova chega
+  sozinho), abrir os ajustes do SpeedBreaker, Diagnóstico e restaurar o padrão (tudo, inclusive as posições; pergunta
+  "Tem certeza?").
+- As marchas ainda vão ser conferidas no jogo. Se algum botão não funcionar: ≡ › Reatribuir botões.
+- **Frame rate:** quem decide é o SpeedBreaker (Ajustes do SpeedBreaker › Display › Frame Rate), não a camada. O jogo anda
+  em 60 passos por segundo, e o SpeedBreaker só oferece 60 e 30 fps, que dividem esses passos por igual.
+  - Para segurar os 60 por mais tempo: Graphics › Internal Resolution em **Auto** (1x no iPhone) e Display › Screen
+    Resolution em **75%** (um pouco menos de trabalho para a GPU).
+  - Jogar carregando também esquenta mais.
 
 ---
 
@@ -226,11 +220,13 @@ o jogo. A vibração que o jogo manda para o controle vira vibração do iPhone.
 
 ## O que foi conferido antes de subir
 
-- Núcleo dos controles: 22.475 checagens. As medidas do NFSU2 no iPhone 17, uma a uma. Em 6 telas (do iPhone SE ao
+- Núcleo dos controles: 22.480 checagens. As medidas do NFSU2 no iPhone 17, uma a uma. Em 6 telas (do iPhone SE ao
   iPad), 11 combinações de ajustes e os dois modos: nada sai das margens, nenhum controle fica a menos de 4 pontos de
   outro (no tamanho 100%), e cada um é acertado no próprio centro. E os toques: aperto mínimo de 150 ms, pedais e setas deslizando como no
   NFSU2, rampa da direção, analógico, inclinação, câmera, pausa, modos, botão de direção, mover, pinça, limites da tela,
-  posições por tela, nomes guardados e ajustes estragados. 35 erros plantados de propósito: os 35 pegos.
+  posições por tela, nomes guardados e ajustes estragados. 39 erros plantados de propósito: os 39 pegos.
+- A troca do mapa de botões salvo: o da build anterior, todo no padrão, passa a seguir o padrão novo; o que foi
+  reatribuído fica; valor estragado volta ao padrão.
 - Ícones: os 16 redesenhados para o iOS, comparados pixel a pixel com os do NFSU2 (diferença abaixo de 0,1%, só o
   serrilhado).
 - Uma prévia de cada tela desenhada a partir das posições reais do núcleo.

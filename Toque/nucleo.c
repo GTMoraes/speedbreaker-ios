@@ -30,7 +30,8 @@ void tq_ajustes_padrao(tq_ajustes *aj)
     aj->escala = 1.0f;
     aj->cambio_manual = 0;
     aj->pausa_vai_para_menu = 1;
-    /* Controles do manual do Carbon de Xbox 360. Mapa, SMS e as marchas: a confirmar no jogo. */
+    /* Controles do manual do Carbon de Xbox 360. Mapa e SMS: o direcional ← e → (a tela de controles do jogo de 360;
+     * o manual só diz "direcional"). As marchas: a confirmar no jogo. */
     aj->mapa[TQ_ACAO_FREIO_MAO] = TQ_O_A;
     aj->mapa[TQ_ACAO_NITRO] = TQ_O_B;
     aj->mapa[TQ_ACAO_SPEEDBREAKER] = TQ_O_X;
@@ -40,8 +41,8 @@ void tq_ajustes_padrao(tq_ajustes *aj)
     aj->mapa[TQ_ACAO_OLHAR_TRAS] = TQ_O_RS;
     aj->mapa[TQ_ACAO_PAUSA] = TQ_O_START;
     aj->mapa[TQ_ACAO_ENTRAR] = TQ_O_BACK;
-    aj->mapa[TQ_ACAO_MAPA] = TQ_O_DUP;
-    aj->mapa[TQ_ACAO_SMS] = TQ_O_DDOWN;
+    aj->mapa[TQ_ACAO_MAPA] = TQ_O_DLEFT;
+    aj->mapa[TQ_ACAO_SMS] = TQ_O_DRIGHT;
     aj->mapa[TQ_ACAO_SOBE] = TQ_O_RUP;
     aj->mapa[TQ_ACAO_DESCE] = TQ_O_RDOWN;
 }
@@ -388,10 +389,11 @@ static tq_dedo *dedo_livre(tq_nucleo *n)
     return NULL;
 }
 
-/* Os grupos em que o dedo desliza de um controle para outro sem levantar (NFSU2: 'pedal' e 'steer'). */
+/* Os grupos em que o dedo desliza de um controle para outro sem levantar (NFSU2: 'pedal' e 'steer'; o Freio de mão
+ * entra nos pedais a pedido, para ir do Gás a ele sem levantar o dedo). */
 static int grupo(int c)
 {
-    if (c == TQ_C_GAS || c == TQ_C_FREIO || c == TQ_C_NITRO)
+    if (c == TQ_C_GAS || c == TQ_C_FREIO || c == TQ_C_NITRO || c == TQ_C_FREIO_MAO)
         return 1;
     if (c == TQ_C_ESQUERDA || c == TQ_C_DIREITA)
         return 2;
@@ -781,7 +783,9 @@ void tq_tick(tq_nucleo *n, double t, tq_estado_controle *s)
             else if (p == TQ_C_NITRO) {
                 ativo[TQ_O_RT] = 1;
                 ativo[n->aj.mapa[TQ_ACAO_NITRO]] = 1;
-            } else if (p == TQ_C_ESQUERDA)
+            } else if (p == TQ_C_FREIO_MAO)
+                ativo[n->aj.mapa[TQ_ACAO_FREIO_MAO]] = 1;
+            else if (p == TQ_C_ESQUERDA)
                 esquerda = 1;
             else if (p == TQ_C_DIREITA)
                 direita = 1;
