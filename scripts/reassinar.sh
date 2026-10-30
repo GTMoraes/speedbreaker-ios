@@ -72,7 +72,8 @@ if [ "$TOQUE" = sim ]; then
         -fvisibility=hidden -Wall -Wextra -Wno-unused-parameter -DTQ_BUILD="\"$BUILD\"" \
         -I Toque -I Toque/SDL/include \
         -dynamiclib -install_name @rpath/Toque.framework/Toque -current_version 1.0 -compatibility_version 1.0 \
-        -framework Foundation -framework UIKit -framework QuartzCore -framework CoreMotion -framework CoreHaptics \
+        -framework Foundation -framework UIKit -framework CoreGraphics -framework QuartzCore -framework CoreMotion \
+        -framework CoreHaptics \
         Toque/nucleo.c Toque/ponte_sdl.c Toque/Toque.m -o "$FW/Toque" 2>&1 | tee toque.log
     # O que vem do app (o SDL e a interface do SpeedBreaker) é achado por nome quando o app abre: nada disso pode
     # ser importado na ligação, senão o framework dependeria de um SDL que não existe como biblioteca.
